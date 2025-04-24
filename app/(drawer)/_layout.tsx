@@ -57,7 +57,7 @@ const CustomDrawerContent = (props: any) => {
                <DrawerItem
                key={location.id}
                label={location.name}
-               onPress={() => router.push({
+               onPress={() => router.navigate({
                  pathname: '/location/[id]',
                  params: { id: location.id.toString() }
                })}
@@ -118,6 +118,7 @@ return (
         name="location" 
         options={{
           title: 'Location',
+          headerShown: false,
           drawerItemStyle: {
             display: 'none',
           },
