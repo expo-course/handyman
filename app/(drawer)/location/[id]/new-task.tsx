@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TextInput, Switch } from 'react-native'
+import { View, Text, StyleSheet, TextInput, Switch, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Task } from '../../../../types/interfaces';
 
@@ -16,6 +16,8 @@ const Page = () => {
     const [description, setDescription] = useState('');
     const [isUrgent, setIsUrgent] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
+    
+    const stackTitle = taskId ? 'Edit Task' : 'New Task';
 
     useEffect(() => {
         if (taskId) {
@@ -35,21 +37,24 @@ const Page = () => {
     }
 
     const handleSaveTask = async () => {
-        let newTaskId: 
-        Number;
         if (taskId) {
             //UPDATE
+            await db.runAsync('UPDATE tasks SET title = ?, description = ?, isUrgent = ?, imageUri = ? WHERE id = ?', [title, description, isUrgent, imageUri, Number(taskId)]);
         } else {
             // INSERT
+            await db.runAsync('INSERT INTO tasks (title, description, isUrgent, locationId) VALUES (?, ?, ?, ?)', [title, description, isUrgent, Number(locationId)]);
         }
+        router.back();
     };
 
   return (
     <View style={styles.container}>
-      <TextInput style={styles.input} placeholder='Title' value={title} onChangeText={setTitle} />
+    <Stack.Screen options={{ title: stackTitle }} />
+      <TextInput style={styles.input} placeholder='Title' placeholderTextColor='#ccc' value={title} onChangeText={setTitle} />
       <TextInput 
       style={[styles.input, styles.multilineInput]} 
       placeholder='Description' 
+      placeholderTextColor='#ccc'
       value={description} 
       onChangeText={setDescription} 
       multiline
@@ -63,6 +68,7 @@ const Page = () => {
         }}
         />
       </View>
+      <TouchableOpacity style={styles.button} onPress={handleSaveTask}><Text style={styles.buttonText}>Save</Text></TouchableOpacity>
     </View>
   )
 }
@@ -90,5 +96,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 16,
+    },
+    button: {
+        backgroundColor: '#F2A310',
+        padding: 16,
+        borderRadius: 4,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     }
 })
